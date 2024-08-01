@@ -54,12 +54,12 @@
 #define ROC_MODIFY_QOS_RULE_WITHOUT_PF  0b110 /* Modify existing QoS rule without modifying packet filters */
 #define ROC_RESERVED_1                  0b111 /* Reserved */
 
-/* DNN - APN 
+/* DNN - APN
  * TS 23.003 9.1
  * The APN is composed of two parts, the APN Network Identifier (9.1.1) & The APN Operator Identifier (9.1.2).
- * 
+ *
  * The DNN information element has a length in the range of 3 to 102 octets.
- * The Header is consisted of two octets, the DNN IEI and the Length of the DNN contents fields, each is 1 octet. 
+ * The Header is consisted of two octets, the DNN IEI and the Length of the DNN contents fields, each is 1 octet.
  * The DNN value payload starts from the 3rd octet.
  * The accumulated max length of APN payload is 100 octets.
  * The min length of the APN payload is 1 octet.
@@ -166,6 +166,6 @@ typedef struct security_protected_nas_5gs_msg_s {
   uint8_t  sqn; /* Sequence Number */
 } security_protected_nas_5gs_msg_t; /* 24.501 Figure 9.1.1.2 */
 
-void capture_pdu_session_establishment_accept_msg(uint8_t *buffer, uint32_t msg_length);
+void capture_pdu_session_establishment_accept_msg(uint8_t *buffer, uint32_t msg_length, int ue_instance);
 
 #endif

@@ -55,7 +55,7 @@
 
 extern char *baseNetAddress;
 extern uint16_t NB_UE_INST;
-static nr_ue_nas_t nr_ue_nas = {0};
+// static nr_ue_nas_t nr_ue_nas = {0};
 static nr_ue_nas_t *nr_ue_nas_array = NULL;
 static nr_nas_msg_snssai_t nas_allowed_nssai[8];
 
@@ -1253,8 +1253,11 @@ void *nas_nrue(void *args_p)
   itti_receive_msg(TASK_NAS_NRUE, &msg_p);
 
   if (msg_p != NULL) {
-    instance_t instance = msg_p->ittiMsgHeader.originInstance;
+    // instance_t instance = msg_p->ittiMsgHeader.originInstance;
     // AssertFatal(instance == 0, "cannot handle more than one UE!\n");
+    instance_t instance = msg_p->ittiMsgHeader.destinationInstance;
+
+    LOG_I(NAS, ">>> [UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
 
     switch (ITTI_MSG_ID(msg_p)) {
       case INITIALIZE_MESSAGE:
@@ -1307,7 +1310,7 @@ void *nas_nrue(void *args_p)
         generatePduSessionEstablishRequest(nas, &pduEstablishMsg, pduReq);
         if (pduEstablishMsg.length > 0) {
           send_nas_uplink_data_req(instance, &pduEstablishMsg);
-          LOG_I(NAS, "Send NAS_UPLINK_DATA_REQ message(PduSessionEstablishRequest)\n");
+          LOG_I(NAS, "[UE %ld] Send NAS_UPLINK_DATA_REQ message(PduSessionEstablishRequest)\n",  instance);
         }
         break;
       }
@@ -1328,7 +1331,7 @@ void *nas_nrue(void *args_p)
         security_state_t security_state = nas_security_rx_process(nas, pdu_buffer, pdu_length);
         if (security_state != NAS_SECURITY_INTEGRITY_PASSED
             && security_state != NAS_SECURITY_NO_SECURITY_CONTEXT) {
-          LOG_E(NAS, "NAS integrity failed, discard incoming message\n");
+          LOG_E(NAS, "[UE %ld] NAS integrity failed, discard incoming message\n", instance);
           break;
         }
 
@@ -1337,7 +1340,7 @@ void *nas_nrue(void *args_p)
         if (msg_type == REGISTRATION_ACCEPT) {
           handle_registration_accept(instance, nas, pdu_buffer, pdu_length);
         } else if (msg_type == FGS_PDU_SESSION_ESTABLISHMENT_ACC) {
-          capture_pdu_session_establishment_accept_msg(pdu_buffer, pdu_length);
+          capture_pdu_session_establishment_accept_msg(pdu_buffer, pdu_length, instance);
         }
 
         break;
@@ -1411,7 +1414,7 @@ void *nas_nrue(void *args_p)
 
         if (security_state != NAS_SECURITY_INTEGRITY_PASSED
             && security_state != NAS_SECURITY_NO_SECURITY_CONTEXT) {
-          LOG_E(NAS, "NAS integrity failed, discard incoming message\n");
+          LOG_E(NAS, "[UE %ld] NAS integrity failed, discard incoming message\n", instance);
           break;
         }
 
@@ -1434,7 +1437,7 @@ void *nas_nrue(void *args_p)
             handle_registration_accept(instance, nas, pdu_buffer, pdu_length);
             break;
           case FGS_DEREGISTRATION_ACCEPT:
-            LOG_I(NAS, "received deregistration accept\n");
+            LOG_I(NAS, "[UE %ld] received deregistration accept\n", instance);
             break;
           case FGS_PDU_SESSION_ESTABLISHMENT_ACC: {
             uint8_t offset = 0;
@@ -1460,7 +1463,7 @@ void *nas_nrue(void *args_p)
                         *(payload_container + offset + 4),
                         *(payload_container + offset + 5),
                         *(payload_container + offset + 6));
-                  nas_config(1, third_octet, fourth_octet, "oaitun_ue");
+                  nas_config(instance, third_octet, fourth_octet, "oaitun_ue");
                   break;
                 }
               }

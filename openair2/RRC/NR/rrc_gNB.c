@@ -2359,7 +2359,7 @@ void *rrc_gnb_task(void *args_p) {
     /* timer to write stats to file */
     timer_setup(1, 0, TASK_RRC_GNB, 0, TIMER_PERIODIC, NULL, &stats_timer_id);
   }
-  
+
   itti_mark_task_ready(TASK_RRC_GNB);
   LOG_I(NR_RRC,"Entering main loop of NR_RRC message task\n");
 
@@ -2368,7 +2368,7 @@ void *rrc_gnb_task(void *args_p) {
     itti_receive_msg(TASK_RRC_GNB, &msg_p);
     const char *msg_name_p = ITTI_MSG_NAME(msg_p);
     instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
-    LOG_D(NR_RRC,
+    LOG_I(NR_RRC,
           "RRC GNB Task Received %s for instance %ld from task %s\n",
           ITTI_MSG_NAME(msg_p),
           ITTI_MSG_DESTINATION_INSTANCE(msg_p),

@@ -565,7 +565,7 @@ int main(int argc, char **argv)
   // wait for end of program
   printf("TYPE <CTRL-C> TO TERMINATE\n");
 
-  if (create_tasks_nrue(1) < 0) {
+  if (create_tasks_nrue(NB_UE_INST) < 0) {
     printf("cannot create ITTI tasks\n");
     exit(-1); // need a softer mode
   }

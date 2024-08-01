@@ -34,7 +34,7 @@ static uint16_t getShort(uint8_t *input)
   return htons(tmp16);
 }
 
-void capture_pdu_session_establishment_accept_msg(uint8_t *buffer, uint32_t msg_length)
+void capture_pdu_session_establishment_accept_msg(uint8_t *buffer, uint32_t msg_length, int ue_instance)
 {
   security_protected_nas_5gs_msg_t       sec_nas_hdr;
   security_protected_plain_nas_5gs_msg_t sec_nas_msg;
@@ -112,7 +112,7 @@ void capture_pdu_session_establishment_accept_msg(uint8_t *buffer, uint32_t msg_
           psea_msg.pdu_addr_ie.pdu_addr_oct4 = *curPtr++;
           nas_getparams();
           sprintf(baseNetAddress, "%d.%d", psea_msg.pdu_addr_ie.pdu_addr_oct1, psea_msg.pdu_addr_ie.pdu_addr_oct2);
-          nas_config(1, psea_msg.pdu_addr_ie.pdu_addr_oct3, psea_msg.pdu_addr_ie.pdu_addr_oct4, "oaitun_ue");
+          nas_config(ue_instance+1, psea_msg.pdu_addr_ie.pdu_addr_oct3, psea_msg.pdu_addr_ie.pdu_addr_oct4, "oaitun_ue");
           LOG_T(NAS, "PDU SESSION ESTABLISHMENT ACCEPT - Received UE IP: %d.%d.%d.%d\n",
                 psea_msg.pdu_addr_ie.pdu_addr_oct1,
                 psea_msg.pdu_addr_ie.pdu_addr_oct2,
