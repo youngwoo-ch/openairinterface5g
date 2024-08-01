@@ -475,7 +475,7 @@ static void *ue_tun_read_thread(void *_)
   int has_ue;
 
   int rb_id = 1;
-  pthread_setname_np( pthread_self(),"ue_tun_read"); 
+  pthread_setname_np( pthread_self(),"ue_tun_read");
   while (1) {
     len = read(nas_sock_fd[0], &rx_buf, NL_MAX_PAYLOAD);
     if (len == -1) {
@@ -596,7 +596,7 @@ void nr_pdcp_layer_init(bool uses_e1)
 #include "executables/lte-softmodem.h"
 #include "openair2/RRC/NAS/nas_config.h"
 
-uint64_t nr_pdcp_module_init(uint64_t _pdcp_optmask, int id)
+uint64_t nr_pdcp_module_init(uint64_t _pdcp_optmask, int id, int ue_inst)
 {
   /* hack: be sure to initialize only once */
   static pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -629,7 +629,7 @@ uint64_t nr_pdcp_module_init(uint64_t _pdcp_optmask, int id)
 
     if(UE_NAS_USE_TUN) {
       char *ifsuffix_ue = get_softmodem_params()->nsa ? "nrue" : "ue";
-      int num_if = (NFAPI_MODE == NFAPI_UE_STUB_PNF || IS_SOFTMODEM_SIML1 || NFAPI_MODE == NFAPI_MODE_STANDALONE_PNF)? MAX_MOBILES_PER_ENB : 1;
+      int num_if = (NFAPI_MODE == NFAPI_UE_STUB_PNF || IS_SOFTMODEM_SIML1 || NFAPI_MODE == NFAPI_MODE_STANDALONE_PNF) ? MAX_MOBILES_PER_ENB : ue_inst;
       netlink_init_tun(ifsuffix_ue, num_if, id);
       //Add --nr-ip-over-lte option check for next line
       if (IS_SOFTMODEM_NOS1){
@@ -890,7 +890,7 @@ void add_drb(int is_gnb,
     has_sdap_rx = is_sdap_rx(is_gnb, s->cnAssociation->choice.sdap_Config);
     has_sdap_tx = is_sdap_tx(is_gnb, s->cnAssociation->choice.sdap_Config);
     is_sdap_DefaultDRB = s->cnAssociation->choice.sdap_Config->defaultDRB == true ? 1 : 0;
-    mappedQFIs2Add = (NR_QFI_t*)s->cnAssociation->choice.sdap_Config->mappedQoS_FlowsToAdd->list.array[0]; 
+    mappedQFIs2Add = (NR_QFI_t*)s->cnAssociation->choice.sdap_Config->mappedQoS_FlowsToAdd->list.array[0];
     mappedQFIs2AddCount = s->cnAssociation->choice.sdap_Config->mappedQoS_FlowsToAdd->list.count;
     LOG_D(SDAP, "Captured mappedQoS_FlowsToAdd from RRC: %ld \n", *mappedQFIs2Add);
   }
@@ -1402,6 +1402,6 @@ int nr_pdcp_get_num_ues(ue_id_t *ue_list, int len)
   for (int i = 0; i < num_ues && i < len; i++)
     ue_list[i] = nr_pdcp_ue_list[i]->ue_id;
   nr_pdcp_manager_unlock(nr_pdcp_ue_manager);
-  
+
   return num_ues;
 }

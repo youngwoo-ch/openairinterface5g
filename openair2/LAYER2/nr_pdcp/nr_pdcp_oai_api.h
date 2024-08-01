@@ -26,7 +26,7 @@
 #include "nr_pdcp_ue_manager.h"
 
 void nr_pdcp_layer_init(bool uses_e1);
-uint64_t nr_pdcp_module_init(uint64_t _pdcp_optmask, int id);
+uint64_t nr_pdcp_module_init(uint64_t _pdcp_optmask, int id, int ue_inst);
 
 void du_rlc_data_req(const protocol_ctxt_t *const ctxt_pP,
                      const srb_flag_t srb_flagP,

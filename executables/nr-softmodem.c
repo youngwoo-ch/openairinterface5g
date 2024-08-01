@@ -275,7 +275,7 @@ void exit_function(const char *file, const char *function, const int line, const
 
 static int create_gNB_tasks(ngran_node_t node_type, configmodule_interface_t *cfg)
 {
-  uint32_t                        gnb_nb = RC.nb_nr_inst; 
+  uint32_t                        gnb_nb = RC.nb_nr_inst;
   uint32_t                        gnb_id_start = 0;
   uint32_t                        gnb_id_end = gnb_id_start + gnb_nb;
   LOG_D(GNB_APP, "%s(gnb_nb:%d)\n", __FUNCTION__, gnb_nb);
@@ -397,7 +397,7 @@ static int create_gNB_tasks(ngran_node_t node_type, configmodule_interface_t *cf
       itti_free(TASK_UNKNOWN, msg);
     }
 
-    //Use check on x2ap to consider the NSA scenario 
+    //Use check on x2ap to consider the NSA scenario
     if((is_x2ap_enabled() || get_softmodem_params()->sa) && (node_type != ngran_gNB_CUCP)) {
       if (itti_create_task (TASK_GTPV1_U, &gtpv1uTask, NULL) < 0) {
         LOG_E(GTPU, "Create task for GTPV1U failed\n");
@@ -545,10 +545,10 @@ void init_pdcp(void) {
   uint32_t pdcp_initmask = (IS_SOFTMODEM_NOS1) ?
     PDCP_USE_NETLINK_BIT | LINK_ENB_PDCP_TO_IP_DRIVER_BIT | ENB_NAS_USE_TUN_BIT | SOFTMODEM_NOKRNMOD_BIT:
     LINK_ENB_PDCP_TO_GTPV1U_BIT;
-  
+
   if (!NODE_IS_DU(get_node_type())) {
     nr_pdcp_layer_init(get_node_type() == ngran_gNB_CUCP);
-    nr_pdcp_module_init(pdcp_initmask, 0);
+    nr_pdcp_module_init(pdcp_initmask, 0, 1);
   }
 }
 
@@ -708,10 +708,10 @@ int main( int argc, char **argv ) {
     for (ru_id=0; ru_id<RC.nb_RU; ru_id++) {
       RC.ru[ru_id]->rf_map.card=0;
       RC.ru[ru_id]->rf_map.chain=CC_id+chain_offset;
-      if (ru_id==0) sl_ahead = RC.ru[ru_id]->sl_ahead;	
+      if (ru_id==0) sl_ahead = RC.ru[ru_id]->sl_ahead;
       else AssertFatal(RC.ru[ru_id]->sl_ahead != RC.ru[0]->sl_ahead,"RU %d has different sl_ahead %d than RU 0 %d\n",ru_id,RC.ru[ru_id]->sl_ahead,RC.ru[0]->sl_ahead);
     }
-    
+
   }
 
   config_sync_var=0;
@@ -723,7 +723,7 @@ int main( int argc, char **argv ) {
 //////////////////////////////////
 //// Init the E2 Agent
 
-  // OAI Wrapper 
+  // OAI Wrapper
   e2_agent_args_t oai_args = RCconfig_NR_E2agent();
 
   if (oai_args.enabled) {
