@@ -480,7 +480,7 @@ void derive_ue_keys(uint8_t *buf, nr_ue_nas_t *nas) {
 
 nr_ue_nas_t *get_ue_nas_info(module_id_t module_id)
 {
-  DevAssert(module_id == 0);
+  // DevAssert(module_id == 0);
   if (!nr_ue_nas.uicc)
     nr_ue_nas.uicc = checkUicc(0);
   return &nr_ue_nas;
@@ -786,23 +786,23 @@ static void generateRegistrationComplete(nr_ue_nas_t *nas, as_nas_info_t *initia
 
   /* Encode the first octet of the header (extended protocol discriminator) */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.protocol_discriminator, size);
-  
+
   /* Encode the security header type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.security_header_type, size);
-  
+
   /* Encode the message authentication code */
   ENCODE_U32(initialNasMsg->data + size, sp_msg->header.message_authentication_code, size);
-  
+
   /* Encode the sequence number */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.sequence_number, size);
-  
-  
+
+
   /* Encode the extended protocol discriminator */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.protocoldiscriminator, size);
-    
+
   /* Encode the security header type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.securityheadertype, size);
-    
+
   /* Encode the message type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.messagetype, size);
 
@@ -970,7 +970,7 @@ static void generatePduSessionEstablishRequest(nr_ue_nas_t *nas, as_nas_info_t *
   const bool has_nssai_sd = pdu_req->sd != 0xffffff; // 0xffffff means "no SD", TS 23.003
   const size_t nssai_len = has_nssai_sd ? 4 : 1;
   mm_msg->uplink_nas_transport.snssai.length = nssai_len;
-  //Fixme: it seems there are a lot of memory errors in this: this value was on the stack, 
+  //Fixme: it seems there are a lot of memory errors in this: this value was on the stack,
   // but pushed  in a itti message to another thread
   // this kind of error seems in many places in 5G NAS
   mm_msg->uplink_nas_transport.snssai.value = calloc(1, nssai_len);
