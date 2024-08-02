@@ -1257,7 +1257,7 @@ void *nas_nrue(void *args_p)
     // AssertFatal(instance == 0, "cannot handle more than one UE!\n");
     instance_t instance = msg_p->ittiMsgHeader.destinationInstance;
 
-    LOG_I(NAS, ">>> [UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
+    LOG_D(NAS, "[UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
 
     switch (ITTI_MSG_ID(msg_p)) {
       case INITIALIZE_MESSAGE:
