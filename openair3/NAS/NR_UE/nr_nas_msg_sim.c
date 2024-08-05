@@ -1255,7 +1255,8 @@ void *nas_nrue(void *args_p)
   if (msg_p != NULL) {
     // instance_t instance = msg_p->ittiMsgHeader.originInstance;
     // AssertFatal(instance == 0, "cannot handle more than one UE!\n");
-    instance_t instance = msg_p->ittiMsgHeader.destinationInstance;
+    // instance_t instance = msg_p->ittiMsgHeader.destinationInstance;
+    instance_t instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
 
     LOG_D(NAS, "[UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
 

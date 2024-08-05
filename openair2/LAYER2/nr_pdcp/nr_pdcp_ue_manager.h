@@ -66,5 +66,6 @@ void nr_pdcp_ue_add_drb_pdcp_entity(nr_pdcp_ue_t *ue, int drb_id,
 
 /* returns 0 if no UE, 1 otherwise */
 bool nr_pdcp_get_first_ue_id(nr_pdcp_ue_manager_t *m, ue_id_t *ret);
+bool nr_pdcp_check_is_ue_id(nr_pdcp_ue_manager_t *m, ue_id_t UEid);
 
 #endif /* _NR_PDCP_UE_MANAGER_H_ */

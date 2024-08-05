@@ -1398,7 +1398,7 @@ static int handle_ueCapabilityInformation(const protocol_ctxt_t *const ctxt_pP,
   DevAssert(UE->xids[xid] == RRC_UECAPABILITY_ENQUIRY);
   UE->xids[xid] = RRC_ACTION_NONE;
 
-  LOG_I(NR_RRC, "UE %d: received UE capabilities (xid %d)\n", UE->rrc_ue_id, xid);
+  LOG_D(NR_RRC, "UE %d: received UE capabilities (xid %d)\n", UE->rrc_ue_id, xid);
   int eutra_index = -1;
 
   if (ue_cap_info->criticalExtensions.present == NR_UECapabilityInformation__criticalExtensions_PR_ueCapabilityInformation) {
@@ -2368,7 +2368,7 @@ void *rrc_gnb_task(void *args_p) {
     itti_receive_msg(TASK_RRC_GNB, &msg_p);
     const char *msg_name_p = ITTI_MSG_NAME(msg_p);
     instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
-    LOG_I(NR_RRC,
+    LOG_D(NR_RRC,
           "RRC GNB Task Received %s for instance %ld from task %s\n",
           ITTI_MSG_NAME(msg_p),
           ITTI_MSG_DESTINATION_INSTANCE(msg_p),
