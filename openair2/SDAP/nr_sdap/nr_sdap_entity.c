@@ -280,7 +280,7 @@ static void nr_sdap_rx_entity(nr_sdap_entity_t *entity,
       if(sdap_hdr->RDI == SDAP_REFLECTIVE_MAPPING) {
         LOG_D(SDAP, "RX - Performing Reflective Mapping\n");
         /*
-         * TS 37.324 5.3 QoS flow to DRB Mapping 
+         * TS 37.324 5.3 QoS flow to DRB Mapping
          * 5.3.2 Reflective mapping
          * If there is no stored QoS flow to DRB mapping rule for the QoS flow and a default DRB is configured.
          */
@@ -291,9 +291,9 @@ static void nr_sdap_rx_entity(nr_sdap_entity_t *entity,
         }
 
         /*
-         * TS 37.324 5.3 QoS flow to DRB mapping 
+         * TS 37.324 5.3 QoS flow to DRB mapping
          * 5.3.2 Reflective mapping
-         * if the stored QoS flow to DRB mapping rule for the QoS flow 
+         * if the stored QoS flow to DRB mapping rule for the QoS flow
          * is different from the QoS flow to DRB mapping of the DL SDAP data PDU
          * and
          * the DRB according to the stored QoS flow to DRB mapping rule is configured by RRC
@@ -306,10 +306,10 @@ static void nr_sdap_rx_entity(nr_sdap_entity_t *entity,
         }
 
         /*
-         * TS 37.324 5.3 QoS flow to DRB Mapping 
+         * TS 37.324 5.3 QoS flow to DRB Mapping
          * 5.3.2 Reflective mapping
-         * store the QoS flow to DRB mapping of the DL SDAP data PDU as the QoS flow to DRB mapping rule for the UL. 
-         */ 
+         * store the QoS flow to DRB mapping of the DL SDAP data PDU as the QoS flow to DRB mapping rule for the UL.
+         */
         entity->qfi2drb_table[sdap_hdr->QFI].drb_id = pdcp_entity;
       }
 
@@ -329,7 +329,7 @@ static void nr_sdap_rx_entity(nr_sdap_entity_t *entity,
      * deliver the retrieved SDAP SDU to the upper layer.
      */
     extern int nas_sock_fd[];
-    int len = write(nas_sock_fd[0], &buf[offset], size-offset);
+    int len = write(nas_sock_fd[ue_id], &buf[offset], size-offset);
     LOG_D(SDAP, "RX Entity len : %d\n", len);
     LOG_D(SDAP, "RX Entity size : %d\n", size);
     LOG_D(SDAP, "RX Entity offset : %d\n", offset);

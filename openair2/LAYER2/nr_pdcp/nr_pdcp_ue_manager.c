@@ -216,3 +216,13 @@ bool nr_pdcp_get_first_ue_id(nr_pdcp_ue_manager_t *_m, ue_id_t *ret)
   *ret = m->ue_list[0]->ue_id;
   return true;
 }
+
+bool nr_pdcp_check_is_ue_id(nr_pdcp_ue_manager_t *_m, ue_id_t UEid)
+{
+  nr_pdcp_ue_manager_internal_t *m = _m;
+
+  for (int i = 0; i < m->ue_count; i++)
+    if (m->ue_list[i]->ue_id == UEid)
+      return true;
+  return false;
+}

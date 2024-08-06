@@ -1398,7 +1398,7 @@ static int handle_ueCapabilityInformation(const protocol_ctxt_t *const ctxt_pP,
   DevAssert(UE->xids[xid] == RRC_UECAPABILITY_ENQUIRY);
   UE->xids[xid] = RRC_ACTION_NONE;
 
-  LOG_I(NR_RRC, "UE %d: received UE capabilities (xid %d)\n", UE->rrc_ue_id, xid);
+  LOG_D(NR_RRC, "UE %d: received UE capabilities (xid %d)\n", UE->rrc_ue_id, xid);
   int eutra_index = -1;
 
   if (ue_cap_info->criticalExtensions.present == NR_UECapabilityInformation__criticalExtensions_PR_ueCapabilityInformation) {
@@ -2359,7 +2359,7 @@ void *rrc_gnb_task(void *args_p) {
     /* timer to write stats to file */
     timer_setup(1, 0, TASK_RRC_GNB, 0, TIMER_PERIODIC, NULL, &stats_timer_id);
   }
-  
+
   itti_mark_task_ready(TASK_RRC_GNB);
   LOG_I(NR_RRC,"Entering main loop of NR_RRC message task\n");
 

@@ -55,7 +55,8 @@
 
 extern char *baseNetAddress;
 extern uint16_t NB_UE_INST;
-static nr_ue_nas_t nr_ue_nas = {0};
+// static nr_ue_nas_t nr_ue_nas = {0};
+static nr_ue_nas_t *nr_ue_nas_array = NULL;
 static nr_nas_msg_snssai_t nas_allowed_nssai[8];
 
 typedef enum {
@@ -480,10 +481,17 @@ void derive_ue_keys(uint8_t *buf, nr_ue_nas_t *nas) {
 
 nr_ue_nas_t *get_ue_nas_info(module_id_t module_id)
 {
-  DevAssert(module_id == 0);
-  if (!nr_ue_nas.uicc)
-    nr_ue_nas.uicc = checkUicc(0);
-  return &nr_ue_nas;
+  // DevAssert(module_id == 0);
+  // if (!nr_ue_nas.uicc)
+  //   nr_ue_nas.uicc = checkUicc(module_id);
+  // return &nr_ue_nas;
+  if (nr_ue_nas_array == NULL) {
+    nr_ue_nas_array = (nr_ue_nas_t *) calloc(1, sizeof(nr_ue_nas_t)*NB_UE_INST);
+  }
+
+  if (!nr_ue_nas_array[module_id].uicc)
+    nr_ue_nas_array->uicc = checkUicc(module_id);
+  return &nr_ue_nas_array[module_id];
 }
 
 void generateRegistrationRequest(as_nas_info_t *initialNasMsg, nr_ue_nas_t *nas)
@@ -786,23 +794,23 @@ static void generateRegistrationComplete(nr_ue_nas_t *nas, as_nas_info_t *initia
 
   /* Encode the first octet of the header (extended protocol discriminator) */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.protocol_discriminator, size);
-  
+
   /* Encode the security header type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.security_header_type, size);
-  
+
   /* Encode the message authentication code */
   ENCODE_U32(initialNasMsg->data + size, sp_msg->header.message_authentication_code, size);
-  
+
   /* Encode the sequence number */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->header.sequence_number, size);
-  
-  
+
+
   /* Encode the extended protocol discriminator */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.protocoldiscriminator, size);
-    
+
   /* Encode the security header type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.securityheadertype, size);
-    
+
   /* Encode the message type */
   ENCODE_U8(initialNasMsg->data + size, sp_msg->plain.mm_msg.registration_complete.messagetype, size);
 
@@ -970,7 +978,7 @@ static void generatePduSessionEstablishRequest(nr_ue_nas_t *nas, as_nas_info_t *
   const bool has_nssai_sd = pdu_req->sd != 0xffffff; // 0xffffff means "no SD", TS 23.003
   const size_t nssai_len = has_nssai_sd ? 4 : 1;
   mm_msg->uplink_nas_transport.snssai.length = nssai_len;
-  //Fixme: it seems there are a lot of memory errors in this: this value was on the stack, 
+  //Fixme: it seems there are a lot of memory errors in this: this value was on the stack,
   // but pushed  in a itti message to another thread
   // this kind of error seems in many places in 5G NAS
   mm_msg->uplink_nas_transport.snssai.value = calloc(1, nssai_len);
@@ -1194,7 +1202,14 @@ static int get_user_nssai_idx(const nr_nas_msg_snssai_t allowed_nssai[8], const 
 
 void *nas_nrue_task(void *args_p)
 {
-  nr_ue_nas.uicc = checkUicc(0);
+  // nr_ue_nas.uicc = checkUicc(0);
+  if (nr_ue_nas_array == NULL) {
+    nr_ue_nas_array = (nr_ue_nas_t *) calloc(1, sizeof(nr_ue_nas_t)*NB_UE_INST);
+  }
+
+  for (int ue_idx = 0; ue_idx < NB_UE_INST; ue_idx++){
+    nr_ue_nas_array[ue_idx].uicc = checkUicc(ue_idx);
+  }
   while (1) {
     nas_nrue(NULL);
   }
@@ -1226,13 +1241,24 @@ static void handle_registration_accept(instance_t instance,
 void *nas_nrue(void *args_p)
 {
   // Wait for a message or an event
-  nr_ue_nas.uicc = checkUicc(0);
+  // nr_ue_nas.uicc = checkUicc(0);
+  if (nr_ue_nas_array == NULL) {
+    nr_ue_nas_array = (nr_ue_nas_t *) calloc(1, sizeof(nr_ue_nas_t)*NB_UE_INST);
+  }
+
+  for (int ue_idx = 0; ue_idx < NB_UE_INST; ue_idx++){
+    nr_ue_nas_array[ue_idx].uicc = checkUicc(ue_idx);
+  }
   MessageDef *msg_p;
   itti_receive_msg(TASK_NAS_NRUE, &msg_p);
 
   if (msg_p != NULL) {
-    instance_t instance = msg_p->ittiMsgHeader.originInstance;
-    AssertFatal(instance == 0, "cannot handle more than one UE!\n");
+    // instance_t instance = msg_p->ittiMsgHeader.originInstance;
+    // AssertFatal(instance == 0, "cannot handle more than one UE!\n");
+    // instance_t instance = msg_p->ittiMsgHeader.destinationInstance;
+    instance_t instance = ITTI_MSG_DESTINATION_INSTANCE(msg_p);
+
+    LOG_D(NAS, "[UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
 
     switch (ITTI_MSG_ID(msg_p)) {
       case INITIALIZE_MESSAGE:
@@ -1281,11 +1307,11 @@ void *nas_nrue(void *args_p)
       case NAS_PDU_SESSION_REQ: {
         as_nas_info_t pduEstablishMsg = {0};
         nas_pdu_session_req_t *pduReq = &NAS_PDU_SESSION_REQ(msg_p);
-        nr_ue_nas_t *nas = get_ue_nas_info(0);
+        nr_ue_nas_t *nas = get_ue_nas_info(instance);
         generatePduSessionEstablishRequest(nas, &pduEstablishMsg, pduReq);
         if (pduEstablishMsg.length > 0) {
           send_nas_uplink_data_req(instance, &pduEstablishMsg);
-          LOG_I(NAS, "Send NAS_UPLINK_DATA_REQ message(PduSessionEstablishRequest)\n");
+          LOG_I(NAS, "[UE %ld] Send NAS_UPLINK_DATA_REQ message(PduSessionEstablishRequest)\n",  instance);
         }
         break;
       }
@@ -1301,12 +1327,12 @@ void *nas_nrue(void *args_p)
         uint8_t *pdu_buffer = NAS_CONN_ESTABLI_CNF(msg_p).nasMsg.data;
         int pdu_length = NAS_CONN_ESTABLI_CNF(msg_p).nasMsg.length;
 
-        nr_ue_nas_t *nas = get_ue_nas_info(0);
+        nr_ue_nas_t *nas = get_ue_nas_info(instance);
 
         security_state_t security_state = nas_security_rx_process(nas, pdu_buffer, pdu_length);
         if (security_state != NAS_SECURITY_INTEGRITY_PASSED
             && security_state != NAS_SECURITY_NO_SECURITY_CONTEXT) {
-          LOG_E(NAS, "NAS integrity failed, discard incoming message\n");
+          LOG_E(NAS, "[UE %ld] NAS integrity failed, discard incoming message\n", instance);
           break;
         }
 
@@ -1315,7 +1341,7 @@ void *nas_nrue(void *args_p)
         if (msg_type == REGISTRATION_ACCEPT) {
           handle_registration_accept(instance, nas, pdu_buffer, pdu_length);
         } else if (msg_type == FGS_PDU_SESSION_ESTABLISHMENT_ACC) {
-          capture_pdu_session_establishment_accept_msg(pdu_buffer, pdu_length);
+          capture_pdu_session_establishment_accept_msg(pdu_buffer, pdu_length, instance);
         }
 
         break;
@@ -1324,7 +1350,7 @@ void *nas_nrue(void *args_p)
       case NR_NAS_CONN_RELEASE_IND:
         LOG_I(NAS, "[UE %ld] Received %s: cause %u\n",
               instance, ITTI_MSG_NAME (msg_p), NR_NAS_CONN_RELEASE_IND (msg_p).cause);
-        nr_ue_nas_t *nas = get_ue_nas_info(0);
+        nr_ue_nas_t *nas = get_ue_nas_info(instance);
         // TODO handle connection release
         if (nas->termination_procedure) {
           /* the following is not clean, but probably necessary: we need to give
@@ -1348,7 +1374,7 @@ void *nas_nrue(void *args_p)
 
       case NAS_DEREGISTRATION_REQ: {
         LOG_I(NAS, "[UE %ld] Received %s\n", instance, ITTI_MSG_NAME(msg_p));
-        nr_ue_nas_t *nas = get_ue_nas_info(0);
+        nr_ue_nas_t *nas = get_ue_nas_info(instance);
         nas_deregistration_req_t *req = &NAS_DEREGISTRATION_REQ(msg_p);
         if (nas->guti) {
           if (req->cause == AS_DETACH) {
@@ -1373,7 +1399,7 @@ void *nas_nrue(void *args_p)
               NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.length,
               NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.data);
         as_nas_info_t initialNasMsg = {0};
-        nr_ue_nas_t *nas = get_ue_nas_info(0);
+        nr_ue_nas_t *nas = get_ue_nas_info(instance);
 
         uint8_t *pdu_buffer = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.data;
         int pdu_length = NAS_DOWNLINK_DATA_IND(msg_p).nasMsg.length;
@@ -1389,7 +1415,7 @@ void *nas_nrue(void *args_p)
 
         if (security_state != NAS_SECURITY_INTEGRITY_PASSED
             && security_state != NAS_SECURITY_NO_SECURITY_CONTEXT) {
-          LOG_E(NAS, "NAS integrity failed, discard incoming message\n");
+          LOG_E(NAS, "[UE %ld] NAS integrity failed, discard incoming message\n", instance);
           break;
         }
 
@@ -1412,7 +1438,7 @@ void *nas_nrue(void *args_p)
             handle_registration_accept(instance, nas, pdu_buffer, pdu_length);
             break;
           case FGS_DEREGISTRATION_ACCEPT:
-            LOG_I(NAS, "received deregistration accept\n");
+            LOG_I(NAS, "[UE %ld] received deregistration accept\n", instance);
             break;
           case FGS_PDU_SESSION_ESTABLISHMENT_ACC: {
             uint8_t offset = 0;
@@ -1438,7 +1464,7 @@ void *nas_nrue(void *args_p)
                         *(payload_container + offset + 4),
                         *(payload_container + offset + 5),
                         *(payload_container + offset + 6));
-                  nas_config(1, third_octet, fourth_octet, "oaitun_ue");
+                  nas_config(instance, third_octet, fourth_octet, "oaitun_ue");
                   break;
                 }
               }

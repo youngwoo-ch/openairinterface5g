@@ -351,7 +351,7 @@ void nr_ue_measurement_procedures(uint16_t l,
 
     //printf("start adjust gain power avg db %d\n", ue->measurements.rx_power_avg_dB[gNB_id]);
     phy_adjust_gain_nr (ue,ue->measurements.rx_power_avg_dB[gNB_id],gNB_id);
-    
+
     VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_UE_GAIN_CONTROL, VCD_FUNCTION_OUT);
 
 }
@@ -882,7 +882,7 @@ int pbch_pdcch_processing(PHY_VARS_NR_UE *ue, const UE_nr_rxtx_proc_t *proc, nr_
   NR_UE_PDCCH_CONFIG *phy_pdcch_config = &phy_data->phy_pdcch_config;
   int sampleShift = 0;
   nr_ue_dlsch_init(phy_data->dlsch, NR_MAX_NB_LAYERS>4 ? 2:1, ue->max_ldpc_iterations);
-  
+
   VCD_SIGNAL_DUMPER_DUMP_FUNCTION_BY_NAME(VCD_SIGNAL_DUMPER_FUNCTIONS_PHY_PROCEDURES_UE_RX, VCD_FUNCTION_IN);
   start_meas(&ue->phy_proc_rx);
 
@@ -986,7 +986,7 @@ int pbch_pdcch_processing(PHY_VARS_NR_UE *ue, const UE_nr_rxtx_proc_t *proc, nr_
   } // for gNB_id
 
   if ((frame_rx%64 == 0) && (nr_slot_rx==0)) {
-    LOG_I(NR_PHY,"============================================\n");
+    LOG_D(NR_PHY,"============================================\n");
     // fixed text + 8 HARQs rounds à 10 ("999999999/") + NULL
     // if we use 999999999 HARQs, that should be sufficient for at least 138 hours
     const size_t harq_output_len = 31 + 10 * 8 + 1;
@@ -996,9 +996,9 @@ int pbch_pdcch_processing(PHY_VARS_NR_UE *ue, const UE_nr_rxtx_proc_t *proc, nr_
     p += snprintf(p, end - p, "[UE %d] Harq round stats for Downlink: %d", ue->Mod_id, ue->dl_stats[0]);
     for (int round = 1; round < 16 && (round < 3 || ue->dl_stats[round] != 0); ++round)
       p += snprintf(p, end - p,"/%d", ue->dl_stats[round]);
-    LOG_I(NR_PHY,"%s\n", output);
+    LOG_D(NR_PHY,"%s\n", output);
 
-    LOG_I(NR_PHY,"============================================\n");
+    LOG_D(NR_PHY,"============================================\n");
   }
 
   LOG_D(PHY," ------ --> PDCCH ChannelComp/LLR Frame.slot %d.%d ------  \n", frame_rx%1024, nr_slot_rx);

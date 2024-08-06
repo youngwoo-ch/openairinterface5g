@@ -324,6 +324,8 @@ void init_openair0()
   }
 }
 
+int NB_UE_INST = 1;
+
 static void init_pdcp(int ue_id)
 {
   uint32_t pdcp_initmask = (!IS_SOFTMODEM_NOS1) ? LINK_ENB_PDCP_TO_GTPV1U_BIT : (LINK_ENB_PDCP_TO_GTPV1U_BIT | PDCP_USE_NETLINK_BIT | LINK_ENB_PDCP_TO_IP_DRIVER_BIT);
@@ -339,7 +341,7 @@ static void init_pdcp(int ue_id)
     LOG_I(RLC, "Problem at RLC initiation \n");
   }
   nr_pdcp_layer_init(false);
-  nr_pdcp_module_init(pdcp_initmask, ue_id);
+  nr_pdcp_module_init(pdcp_initmask, ue_id, NB_UE_INST);
   pdcp_set_rlc_data_req_func((send_rlc_data_req_func_t) rlc_data_req);
   pdcp_set_pdcp_data_ind_func((pdcp_data_ind_func_t) pdcp_data_ind);
 }
@@ -405,7 +407,6 @@ void start_oai_nrue_threads()
     init_nrUE_standalone_thread(ue_id_g);
 }
 
-int NB_UE_INST = 1;
 configmodule_interface_t *uniqCfg = NULL;
 
 // A global var to reduce the changes size
@@ -564,7 +565,7 @@ int main(int argc, char **argv)
   // wait for end of program
   printf("TYPE <CTRL-C> TO TERMINATE\n");
 
-  if (create_tasks_nrue(1) < 0) {
+  if (create_tasks_nrue(NB_UE_INST) < 0) {
     printf("cannot create ITTI tasks\n");
     exit(-1); // need a softer mode
   }
@@ -595,4 +596,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-
