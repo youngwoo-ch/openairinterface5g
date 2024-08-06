@@ -471,7 +471,7 @@ typedef struct ue_tun_read_thread_params {
   int sock_fd;
 } ue_tun_read_thread_params_t;
 
-static void *ue_tun_read_thread(void *params)
+static void *ue_tun_read_thread(int _sock_fd)
 {
   extern int nas_sock_fd[];
   char rx_buf[NL_MAX_PAYLOAD];
@@ -480,10 +480,13 @@ static void *ue_tun_read_thread(void *params)
   ue_id_t UEid;
   int has_ue;
 
-  ue_tun_read_thread_params_t *nas_sock_fd_params = (ue_tun_read_thread_params_t *)params;
-  int sock_fd = nas_sock_fd_params->sock_fd;
+  int sock_fd = _sock_fd;
   int rb_id = 1;
-  pthread_setname_np( pthread_self(),"ue_tun_read");
+
+  char thread_name[16];
+  snprintf(thread_name, sizeof(thread_name), "ue_tun_read%d", sock_fd);
+  pthread_setname_np(pthread_self(), thread_name);
+
   while (1) {
     len = read(nas_sock_fd[sock_fd], &rx_buf, NL_MAX_PAYLOAD);
     if (len == -1) {
@@ -491,7 +494,7 @@ static void *ue_tun_read_thread(void *params)
       return NULL; /* exit thread */
     }
 
-    LOG_D(PDCP, "%s(): nas_sock_fd read returns len %d\n", __func__, len);
+    LOG_I(PDCP, "%s(): nas_sock_fd %d read returns len %d\n", __func__, sock_fd, len);
 
     nr_pdcp_manager_lock(nr_pdcp_ue_manager);
     has_ue = nr_pdcp_check_is_ue_id(nr_pdcp_ue_manager, sock_fd);
@@ -552,21 +555,11 @@ static void start_pdcp_tun_ue(int ue_inst)
 
   for (int idx = 0; idx < ue_inst; idx++) {
     pthread_t t;
-    ue_tun_read_thread_params_t *params = malloc(sizeof(ue_tun_read_thread_params_t));
 
-    if (params == NULL) {
-      LOG_E(PDCP, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
-      exit(EXIT_FAILURE);
-    }
-
-    params->sock_fd = idx;
-
-    if (pthread_create(&t, NULL, ue_tun_read_thread, params) != 0) {
+    if (pthread_create(&t, NULL, ue_tun_read_thread, idx) != 0) {
       LOG_E(PDCP, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
       exit(1);
     }
-
-    free(params);
   }
 }
 
