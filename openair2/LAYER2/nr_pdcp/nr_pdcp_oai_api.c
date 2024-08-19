@@ -471,7 +471,7 @@ typedef struct ue_tun_read_thread_params {
   int sock_fd;
 } ue_tun_read_thread_params_t;
 
-static void *ue_tun_read_thread(int _sock_fd)
+static void *ue_tun_read_thread(void *param)
 {
   extern int nas_sock_fd[];
   char rx_buf[NL_MAX_PAYLOAD];
@@ -480,7 +480,9 @@ static void *ue_tun_read_thread(int _sock_fd)
   ue_id_t UEid;
   int has_ue;
 
-  int sock_fd = _sock_fd;
+  ue_tun_read_thread_params_t *sock_param = (ue_tun_read_thread_params_t *) param;
+
+  int sock_fd = sock_param->sock_fd;
   int rb_id = 1;
 
   char thread_name[16];
@@ -556,10 +558,21 @@ static void start_pdcp_tun_ue(int ue_inst)
   for (int idx = 0; idx < ue_inst; idx++) {
     pthread_t t;
 
-    if (pthread_create(&t, NULL, ue_tun_read_thread, idx) != 0) {
-      LOG_E(PDCP, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
+    ue_tun_read_thread_params_t *param = (ue_tun_read_thread_params_t *)malloc(sizeof(ue_tun_read_thread_params_t));
+    if (param == NULL) {
+      LOG_E(PDCP, "%s:%d:%s: failed to allocate memory for param\n", __FILE__, __LINE__, __FUNCTION__);
       exit(1);
     }
+
+    param->sock_fd = idx;
+
+    if (pthread_create(&t, NULL, ue_tun_read_thread, param) != 0) {
+      LOG_E(PDCP, "%s:%d:%s: fatal\n", __FILE__, __LINE__, __FUNCTION__);
+      free(param);
+      exit(1);
+    }
+
+    usleep(100000); // wait for create thead. socket fd must be overwrited for next thread.
   }
 }
 

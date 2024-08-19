@@ -96,23 +96,20 @@ database:
 snssais:
   - &embb_slice1
     sst: 1
-  - &embb_slice2
-    sst: 2
-  - &embb_slice3
-    sst: 3
 
 ############## NF-specific configuration
 amf:
   amf_name: "OAI-AMF"
   # This really depends on if we want to keep the "mini" version or not
   support_features_options:
-    enable_simple_scenario: yes # "no" by default with the normal deployment scenarios with AMF/SMF/UPF/AUSF/UDM/UDR/NRF.
-                               # set it to "yes" to use with the minimalist deployment scenario (including only AMF/SMF/UPF) by using the internal AUSF/UDM implemented inside AMF.
-                               # There's no NRF in this scenario, SMF info is taken from "nfs" section.
+    enable_simple_scenario:
+      yes # "no" by default with the normal deployment scenarios with AMF/SMF/UPF/AUSF/UDM/UDR/NRF.
+      # set it to "yes" to use with the minimalist deployment scenario (including only AMF/SMF/UPF) by using the internal AUSF/UDM implemented inside AMF.
+      # There's no NRF in this scenario, SMF info is taken from "nfs" section.
     enable_nssf: no
     enable_smf_selection: no
   relative_capacity: 30
-  statistics_timer_interval: 20  # in seconds
+  statistics_timer_interval: 20 # in seconds
   emergency_support: false
   served_guami_list:
     - mcc: 208
@@ -126,8 +123,6 @@ amf:
       tac: 0x0001
       nssai:
         - *embb_slice1
-        - *embb_slice2
-        - *embb_slice3
   supported_integrity_algorithms:
     - "NIA0"
     - "NIA1"
@@ -176,33 +171,15 @@ smf:
         5qi: 9
         session_ambr_ul: "200Mbps"
         session_ambr_dl: "400Mbps"
-    - single_nssai: *embb_slice2
-      dnn: "oai"
-      qos_profile:
-        5qi: 9
-        session_ambr_ul: "200Mbps"
-        session_ambr_dl: "400Mbps"
-    - single_nssai: *embb_slice3
-      dnn: "oai"
-      qos_profile:
-        5qi: 9
-        session_ambr_ul: "200Mbps"
-        session_ambr_dl: "400Mbps"
 
 upf:
   support_features:
-    enable_bpf_datapath: no    # If "on": BPF is used as datapath else simpleswitch is used, DEFAULT= off
-    enable_snat: yes           # If "on": Source natting is done for UE, DEFAULT= off
-  remote_n6_gw: 127.0.0.1      # Dummy host since simple-switch does not use N6 GW
+    enable_bpf_datapath: no # If "on": BPF is used as datapath else simpleswitch is used, DEFAULT= off
+    enable_snat: yes # If "on": Source natting is done for UE, DEFAULT= off
+  remote_n6_gw: 127.0.0.1 # Dummy host since simple-switch does not use N6 GW
   upf_info:
     sNssaiUpfInfoList:
       - sNssai: *embb_slice1
-        dnnUpfInfoList:
-          - dnn: "oai"
-      - sNssai: *embb_slice2
-        dnnUpfInfoList:
-          - dnn: "oai"
-      - sNssai: *embb_slice3
         dnnUpfInfoList:
           - dnn: "oai"
 
