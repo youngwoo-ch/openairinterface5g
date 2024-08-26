@@ -44,6 +44,8 @@
 #include "executables/softmodem-common.h"
 #include "../../../nfapi/oai_integration/vendor_ext.h"
 
+#include "unistd.h"
+
 ////////////////////////////////////////////////////////
 /////* DLSCH MAC PDU generation (6.1.2 TS 38.321) */////
 ////////////////////////////////////////////////////////
@@ -712,6 +714,13 @@ static void pf_dl(module_id_t module_id,
   }
 
   qsort(UE_sched, sizeofArray(UE_sched), sizeof(UEsched_t), comparator);
+
+  /* Add time for a sleep */
+  int schsleep_time = get_softmodem_params()->schsleep_time;
+  if (schsleep_time > 0) {
+    usleep(schsleep_time);
+  }
+
   UEsched_t *iterator = UE_sched;
 
   const int min_rbSize = 5;
