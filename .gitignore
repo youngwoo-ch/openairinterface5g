@@ -28,3 +28,4 @@ nfapi_nr_interface_scf
 
 # test files
 *.test.conf
+vtune_results/*
