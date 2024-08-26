@@ -83,7 +83,7 @@ services:
             retries: 5
 
     oai-cu:
-        image: wooyoungchoidocker/oai-gnb:v0.1.0t
+        image: wooyoungchoidocker/oai-gnb:v0.1.1t
         container_name: rfsim5g-oai-cu
         privileged: true
         environment: 
@@ -126,7 +126,7 @@ services:
     #         retries: 5
 
     oai-nr-ue0:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue0
         cap_drop:
             - ALL
@@ -152,7 +152,7 @@ services:
             retries: 5
 
     oai-nr-ue1:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue1
         cap_drop:
             - ALL
@@ -178,7 +178,7 @@ services:
             retries: 5
 
     oai-nr-ue2:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue2
         cap_drop:
             - ALL
@@ -204,7 +204,7 @@ services:
             retries: 5
 
     oai-nr-ue3:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue3
         cap_drop:
             - ALL
@@ -230,7 +230,7 @@ services:
             retries: 5
 
     oai-nr-ue4:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue4
         cap_drop:
             - ALL
@@ -256,7 +256,7 @@ services:
             retries: 5
 
     oai-nr-ue5:
-        image: wooyoungchoidocker/oai-nr-ue:v0.1.0t
+        image: wooyoungchoidocker/oai-nr-ue:v0.1.1t
         container_name: rfsim5g-oai-nr-ue5
         cap_drop:
             - ALL
