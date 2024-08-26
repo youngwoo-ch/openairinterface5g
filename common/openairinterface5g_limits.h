@@ -1,7 +1,7 @@
 #ifndef OPENAIRINTERFACE5G_LIMITS_H_
 #define OPENAIRINTERFACE5G_LIMITS_H_
 
-#        define MAX_MOBILES_PER_GNB 16
+#        define MAX_MOBILES_PER_GNB 256
 #        define NUMBER_OF_eNB_MAX 1
 #        define NUMBER_OF_gNB_MAX 1
 #        define NUMBER_OF_RU_MAX 2
@@ -17,7 +17,7 @@
 
 #        ifndef PHYSIM
 #            ifndef UE_EXPANSION
-#                    define NUMBER_OF_UE_MAX 40
+#                    define NUMBER_OF_UE_MAX 256
 #                    define NUMBER_OF_CONNECTED_eNB_MAX 1
 #                    define NUMBER_OF_CONNECTED_gNB_MAX 1
 #            else
@@ -26,7 +26,7 @@
 #                    define NUMBER_OF_CONNECTED_gNB_MAX 1
 #            endif
 #        else
-#                    define NUMBER_OF_UE_MAX 4
+#                    define NUMBER_OF_UE_MAX 256
 #                    define NUMBER_OF_CONNECTED_eNB_MAX 1
 #                    define NUMBER_OF_CONNECTED_gNB_MAX 1
 #        endif
